@@ -14,18 +14,34 @@ CSV_FILE = "nccn_links.csv"
 
 # --- STEP 1: DOWNLOADER & READER ---
 def get_random_cancer_topic():
-    """Reads the CSV and returns a random topic and URL."""
-    try:
-        with open(CSV_FILE, mode='r', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            data = list(reader)
-            if not data:
-                return None, None
-            selection = random.choice(data)
-            return selection['topic'], selection['url']
-    except FileNotFoundError:
-        print("❌ Error: CSV file not found.")
-        return None, None
+    """Reads the CSV with robust encoding handling (Fixes Unicode Error)."""
+    # List of encodings to try (Windows defaults vs Standard UTF-8)
+    encodings_to_try = ['utf-8-sig', 'utf-8', 'latin-1', 'cp1252']
+    
+    for enc in encodings_to_try:
+        try:
+            with open(CSV_FILE, mode='r', encoding=enc) as f:
+                reader = csv.DictReader(f)
+                data = list(reader)
+                
+                # Check if data is empty or headers are messed up
+                if not data:
+                    continue 
+                    
+                # Verify we actually found the columns we need
+                if 'topic' not in data[0] or 'url' not in data[0]:
+                    print(f"⚠️ Warning: columns missing with encoding {enc}, trying next...")
+                    continue
+
+                selection = random.choice(data)
+                return selection['topic'], selection['url']
+                
+        except (UnicodeDecodeError, KeyError, Exception):
+            # If this encoding fails, the loop will just try the next one
+            continue
+            
+    print("❌ Error: Could not read CSV file. Please check 'nccn_links.csv' formatting.")
+    return None, None
 
 def download_and_extract_pdf(url):
     """Downloads PDF from NCCN and extracts text."""
@@ -146,3 +162,4 @@ if __name__ == "__main__":
     else:
 
         print("❌ Failed to get PDF content. (Check URL in CSV)")
+
