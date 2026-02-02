@@ -1,0 +1,28 @@
+name: Elite Oncology Daily Post
+
+on:
+  schedule:
+    - cron: '0 12 * * *' # Runs every day at 10:00 UTC (Adjust as needed)
+  workflow_dispatch:      # Allows manual click-to-run for testing
+
+jobs:
+  run_bot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install Libraries
+        run: pip install -r requirements.txt
+
+      - name: Run Script
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          FB_PAGE_ACCESS_TOKEN: ${{ secrets.FB_PAGE_ACCESS_TOKEN }}
+          FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
+        run: python main.py
