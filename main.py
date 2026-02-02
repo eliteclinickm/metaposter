@@ -115,7 +115,7 @@ def post_to_facebook(content):
             print(f"❌ Facebook API Error: {response.text}")
     except Exception as e:
         print(f"❌ Network Error: {e}")
-
+# test to run
 # --- MAIN LOOP ---
 if __name__ == "__main__":
     if not all([GEMINI_API_KEY, FB_PAGE_ACCESS_TOKEN, FB_PAGE_ID]):
@@ -144,4 +144,5 @@ if __name__ == "__main__":
         else:
             print("❌ Failed to generate post content.")
     else:
+
         print("❌ Failed to get PDF content. (Check URL in CSV)")
